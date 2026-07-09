@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+
+# Raw data (too large for GitHub)
+data/raw/
+
+# Environment variables
+.env
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Output files (generated — not source)
+outputs/
+
+# Database files
+*.db
+*.sqlite
