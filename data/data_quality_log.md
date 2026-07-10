@@ -173,3 +173,27 @@ Why Mann-Whitney U and not a t-test: cycle times are right-skewed (hard lower bo
 1. The bottleneck is not warehouse/pick-pack (small effect) or order approval (near-instant, negligible) — it's the **carrier delivery leg**, statistically confirmed with a large effect size. Any intervention should target carrier performance and last-mile logistics, not internal fulfillment operations.
 2. Seller region has a statistically real but practically weak relationship with lateness — useful as a secondary segmentation variable (e.g., for cost-to-serve breakdown) but not the headline fix.
 3. Late deliveries are geographically concentrated (Pareto), which supports a **targeted intervention** (e.g., carrier renegotiation or regional DC placement on the top ~18 routes) rather than a blanket process redesign — a more credible, lower-cost recommendation for the business case.
+
+## Section 5: Financial Model Results (Phase 5)
+
+**Date:** 2026-07-10
+**Script run:** `python src/financials.py`
+**SQL run:** `05_cost_to_serve.sql`
+
+### Cost-to-Serve (top routes by total cost)
+
+| Route | Orders | Late | Base Cost | Recovery Cost | Total Cost |
+|-------|--------|------|-----------|----------------|------------|
+| SP → SP | 30,735 | 1,912 | $454,878.00 | $42,064.00 | $496,942.00 |
+| SP → RJ | 8,158 | 1,264 | $120,738.40 | $27,808.00 | $148,546.40 |
+| SP → MG | 7,440 | 472 | $110,112.00 | $10,384.00 | $120,496.00 |
+
+### NPV Sensitivity
+
+| Scenario | Late Rate After | Orders Avoided/Year | Annual Savings | 3-Year NPV | Payback |
+|----------|-----------------|----------------------|-----------------|------------|---------|
+| Pessimistic | 7.1% | 965 | $21,230.00 | $2,896.27 | 2.1 years |
+| Base | 5.1% | 2,894 | $63,668.00 | $98,639.17 | 0.7 years |
+| Optimistic | 3.1% | 4,824 | $106,128.00 | $194,431.70 | 0.4 years |
+
+**Conclusion:** Even the pessimistic scenario (1pp late-rate improvement) produces a positive 3-year NPV, meaning the business case for intervention holds under conservative assumptions, not just the optimistic case. Combined with the cost-to-serve breakdown, the SP→SP and SP→RJ routes represent the largest total cost exposure and should be the first targets for any carrier or process intervention.
