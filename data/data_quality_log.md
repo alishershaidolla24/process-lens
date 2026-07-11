@@ -197,3 +197,27 @@ Why Mann-Whitney U and not a t-test: cycle times are right-skewed (hard lower bo
 | Optimistic | 3.1% | 4,824 | $106,128.00 | $194,431.70 | 0.4 years |
 
 **Conclusion:** Even the pessimistic scenario (1pp late-rate improvement) produces a positive 3-year NPV, meaning the business case for intervention holds under conservative assumptions, not just the optimistic case. Combined with the cost-to-serve breakdown, the SP→SP and SP→RJ routes represent the largest total cost exposure and should be the first targets for any carrier or process intervention.
+
+## Section 6: Simulation Results (Phase 6)
+
+**Date:** 2026-07-12
+**Script run:** `python src/simulation.py`
+
+### Calibration Check
+
+- Simulated as-is OTD: 91.6% vs observed 91.9% — delta: 0.3pp
+- Within ±2pp target: Yes
+
+### To-Be Improvement
+
+- Simulated to-be OTD: 96.3% (SHRINK_FACTOR = 0.70, a 30% reduction in carrier delivery time, targeting the ~18 highest-cost Pareto routes)
+- Improvement vs as-is: 4.7pp
+- Meets ≥8pp target: No
+
+**Note on the ≥8pp target:** Not met under a realistic assumption, and this is a real finding rather than a modeling shortfall. As-is OTD is already 91.6%, leaving a theoretical ceiling of only 8.4pp even if carrier delivery became perfectly reliable. Testing progressively more aggressive shrink factors confirmed this: a 70% reduction in delivery time (SHRINK_FACTOR = 0.3) — an implausible assumption for any real carrier intervention — still only reached 7.5pp. The pre-committed ≥8pp target likely underestimated how little headroom remains once a process already performs reasonably well. A defensible, realistic assumption (30% delivery-time reduction) produces a genuine 4.7pp improvement, confirmed by non-overlapping 95% confidence intervals (as-is 91.8% ± 0.2pp vs. to-be 96.2% ± 0.2pp) — the effect is real, just smaller than the original target assumed.
+
+### Confidence Intervals (20 replications, 2,000 orders each)
+
+- As-is: 91.8% ± 0.2pp (95% CI)
+- To-be: 96.2% ± 0.2pp (95% CI)
+- Intervals overlap: No

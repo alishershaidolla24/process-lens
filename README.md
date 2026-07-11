@@ -60,7 +60,7 @@ It answers: **"Where is the process breaking down, how much is it costing, and h
     ├── sql/
     │   ├── schema.sql
     │   └── queries/          ← 6 analytical SQL queries
-    ├── notebooks/            ← Jupyter notebooks per phase
+    ├── notebooks/
     ├── src/                  ← Python modules
     └── outputs/              ← Charts, models, reports
 ---
@@ -93,8 +93,12 @@ pip install -r requirements.txt
 psql -U postgres -c "CREATE DATABASE process_lens;"
 python src/db_setup.py
 
-# 5. Run notebooks in order
-jupyter notebook notebooks/
+# 5. Run the analysis scripts in order
+python src/data_validation.py
+python src/event_log_builder.py
+python src/process_mining.py
+python src/cross_validation.py
+python src/statistical_tests.py
 ```
 
 ---

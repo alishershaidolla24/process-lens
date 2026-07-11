@@ -120,7 +120,6 @@ print(f"  Average fitness score:   {avg_fitness:.4f}")
 print(f"  Cases with perfect fit:  {perfect_fit:,} ({perfect_fit/len(replayed)*100:.1f}%)")
 print(f"  Cases with deviations:   {len(replayed)-perfect_fit:,} ({deviation_rate*100:.1f}%)")
 
-import pandas as pd
 fitness_df = pd.DataFrame({
     "order_id": [t.get("case_id", i) for i, t in enumerate(replayed)],
     "fitness":  fitness_scores
