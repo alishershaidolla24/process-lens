@@ -22,6 +22,9 @@ outputs/*
 !outputs/charts/*.png
 !outputs/reports/
 !outputs/reports/process_lens_business_case.pptx
+!outputs/reports/classifier_feature_importance.csv
+!outputs/reports/financial_sensitivity.csv
+!outputs/reports/simulation_results.csv
 
 # Database files
 *.db

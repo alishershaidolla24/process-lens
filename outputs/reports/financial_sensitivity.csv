@@ -1,0 +1,4 @@
+scenario,new_late_rate,orders_avoided,annual_savings,npv,payback_years
+Pessimistic (1pp late-rate reduction),7.1,965,21230,2896.27,2.12
+Base case (3pp late-rate reduction),5.1,2894,63668,98639.17,0.71
+Optimistic (5pp late-rate reduction),3.1,4824,106128,194431.7,0.42
