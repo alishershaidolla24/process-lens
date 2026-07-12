@@ -126,7 +126,7 @@ These are defined NOW, before analysis, to prevent post-hoc rationalisation:
 
 ---
 
-## Section 4: Statistical Test Results (Phase 4)
+## Section 4: Statistical Test Results
 
 **Date:** 2026-07-09
 **Scripts run:** `python src/statistical_tests.py`
@@ -174,7 +174,9 @@ Why Mann-Whitney U and not a t-test: cycle times are right-skewed (hard lower bo
 2. Seller region has a statistically real but practically weak relationship with lateness — useful as a secondary segmentation variable (e.g., for cost-to-serve breakdown) but not the headline fix.
 3. Late deliveries are geographically concentrated (Pareto), which supports a **targeted intervention** (e.g., carrier renegotiation or regional DC placement on the top ~18 routes) rather than a blanket process redesign — a more credible, lower-cost recommendation for the business case.
 
-## Section 5: Financial Model Results (Phase 5)
+---
+
+## Section 5: Financial Model Results
 
 **Date:** 2026-07-10
 **Script run:** `python src/financials.py`
@@ -198,7 +200,9 @@ Why Mann-Whitney U and not a t-test: cycle times are right-skewed (hard lower bo
 
 **Conclusion:** Even the pessimistic scenario (1pp late-rate improvement) produces a positive 3-year NPV, meaning the business case for intervention holds under conservative assumptions, not just the optimistic case. Combined with the cost-to-serve breakdown, the SP→SP and SP→RJ routes represent the largest total cost exposure and should be the first targets for any carrier or process intervention.
 
-## Section 6: Simulation Results (Phase 6)
+---
+
+## Section 6: Simulation Results
 
 **Date:** 2026-07-12
 **Script run:** `python src/simulation.py`
@@ -222,7 +226,9 @@ Why Mann-Whitney U and not a t-test: cycle times are right-skewed (hard lower bo
 - To-be: 96.2% ± 0.2pp (95% CI)
 - Intervals overlap: No
 
-## Section 7: Classifier Results (Phase 7)
+---
+
+## Section 7: Classifier Results 
 
 **Date:** 2026-07-13
 **Script run:** `python src/classifier.py`
@@ -260,5 +266,43 @@ Why Mann-Whitney U and not a t-test: cycle times are right-skewed (hard lower bo
 | seller_state_SP | 0.082 |
 | total_price | 0.060 |
 | customer_state_PR | 0.057 |
+
+---
+
+## Section 8: Business Case & Control Plan 
+
+**Date:** 2026-07-13
+**Scripts run:** `python src/report_builder.py`, `python src/control_chart.py`
+
+This section packages it into something a decision-maker would actually look at, and then checks whether the recommendation can be trusted to hold up over time.
+
+### The Business Case Deck
+
+`src/report_builder.py` assembles a 5-slide deck (`outputs/reports/process_lens_business_case.pptx`) following the standard SCQA structure — Situation, Complication, Answer, Validation. Every number in it is pulled from files already produced by earlier phases (Mann-Whitney results, the financial sensitivity table, the simulation output, the classifier's feature importances) rather than retyped by hand, so the deck stays consistent with `data_quality_log.md` by construction rather than by careful copy-pasting. The one thing worth flagging honestly: not every bullet on every slide is dynamically pulled — some of the baseline stats (order count, OTD rate, bottleneck p-value) are written directly into the script as text, so if this project were ever re-run on a different dataset, those specific lines would need updating by hand even though the charts and financial figures would refresh automatically.
+
+### Building the Control Chart — What Actually Happened
+
+The first version of the control chart computed its center line and control limits from the *entire* ~2-year order history, and flagged 56 of 89 weeks (63%) as "out of control." That's not a usable result — a control chart flagging most of its own history isn't distinguishing signal from noise, it's telling you the baseline itself is wrong.
+
+The fix was to compute the center line from a recent, narrower window (the last 12 weeks) instead of the full history, on the reasoning that a stable reference period shouldn't include known volatile stretches. That brought the flagged-week count down to 46 — better, but still high enough to be worth understanding rather than accepting.
+
+Pulling the actual dates of the flagged weeks turned up something specific: two distinct disruption blocks, not random noise.
+- **November 13 – December 4, 2017** (late rates 9.8% → 19.4% → 16.7% → 12.0%) lines up with the holiday shopping season, consistent with `purchase_month` being the single strongest predictive feature in the Phase 7 classifier.
+- **January 22 – April 9, 2018** (climbing to a peak of 29.0% in late February) is a longer and larger disruption than the holiday spike, and initially looked unexplained.
+
+A quick check against existing public analysis of this same dataset turned up a real explanation rather than leaving it a mystery: both the April 2017 and February–March 2018 spikes are documented elsewhere as coinciding with major transportation strikes in Brazil during those windows — an external shock to the logistics network, not a failure of Olist's own process. That reframes the finding: the O2C process wasn't randomly unstable, it was hit by two identifiable, external events (a nationwide strike and a seasonal demand surge), on top of whatever ordinary week-to-week variation exists underneath.
+
+One more thing worth being honest about: even the 12-week window chosen as the stable baseline has its own internal swings (a few weeks inside it dip as low as 0.4-2.3% and spike as high as 12-14%), which means no window in this dataset is perfectly clean. That's a real property of the data, not a bug to keep chasing by picking yet another window.
+
+### Ongoing Monitoring Plan
+
+| KPI | Cadence | Trigger for Action |
+|-----|---------|---------------------|
+| Weekly OTD rate (p-chart) | Weekly | Any point outside control limits for 2+ consecutive weeks, excluding known external-shock periods (strikes, peak season) |
+| Cost-to-serve by route | Monthly | Any of the top 18 Pareto routes increases more than 20% month-over-month |
+| Classifier AUC-ROC on new data | Monthly | Drops below 0.65 — retrain on recent data |
+| Conformance fitness (process drift) | Quarterly | Fitness drops below 0.95 — re-run process discovery |
+
+**Recommendation:** treat the control limits calibrated here as provisional. The right baseline for ongoing monitoring is the first 8-12 weeks of actual performance after the recommended fix is implemented — not historical data that includes at least two identifiable external disruptions and no fully clean reference window. Going forward, known external-shock periods (strikes, holiday peaks) should be flagged and excluded from the "is this a real process problem" question separately from genuine internal degradation, so the monitoring plan doesn't cry wolf over events the business can't control anyway.
 
 **Interpretation:** Seasonality (`purchase_month`) is the strongest single predictor — a new finding not surfaced in earlier phases, likely reflecting order-volume congestion during peak periods. The next four features (`promise_days`, `customer_state_SP`, `total_freight`, `same_state`) all reinforce the geographic/last-mile logistics story already established via process mining, statistical testing, and the Pareto analysis — the model independently rediscovered that cross-state and SP-related shipments carry elevated risk, without being told that directly.

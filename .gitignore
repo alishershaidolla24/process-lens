@@ -17,7 +17,11 @@ data/raw/
 .ipynb_checkpoints/
 
 # Output files (generated — not source)
-outputs/
+outputs/*
+!outputs/charts/
+!outputs/charts/*.png
+!outputs/reports/
+!outputs/reports/process_lens_business_case.pptx
 
 # Database files
 *.db
