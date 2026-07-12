@@ -2,7 +2,7 @@
 
 ## Section 1: Scope Statement
 
-**Date written:** 07.07.26
+**Date written:** 2026-07-07
 **Written before any data analysis:** Yes
 
 ### Business Question
@@ -221,3 +221,44 @@ Why Mann-Whitney U and not a t-test: cycle times are right-skewed (hard lower bo
 - As-is: 91.8% ± 0.2pp (95% CI)
 - To-be: 96.2% ± 0.2pp (95% CI)
 - Intervals overlap: No
+
+## Section 7: Classifier Results (Phase 7)
+
+**Date:** 2026-07-13
+**Script run:** `python src/classifier.py`
+**SQL run:** `07_classifier_features.sql`
+
+### Model Performance
+
+- Train set: 77,175 orders, up to 2018-05-26
+- Test set: 19,294 orders, from 2018-05-26 onward
+- AUC-ROC (held-out temporal test set): 0.736–0.741 (stable across runs)
+- Meets >0.70 target: Yes
+
+### Precision/Recall by Risk Percentile
+
+| Top % Flagged | Precision | Recall | Orders Flagged |
+|----------------|-----------|--------|-----------------|
+| 5% | 0.137 | 0.129 | 965 |
+| 10% | 0.119 | 0.225 | 1,930 |
+| 15% | 0.107 | 0.305 | 2,894 |
+| 20% | 0.110 | 0.415 | 3,859 |
+
+**Chosen operating point for business case:** Top 20% — catches 41.5% of all actual late deliveries at 11.0% precision, a ~1.4x lift over the 8.1% base rate. Proactively monitoring 1 in 5 orders at creation time catches roughly 2 in 5 late deliveries before they happen.
+
+### Top Features (SHAP)
+
+| Feature | Mean \|SHAP value\| |
+|---------|---------------------|
+| purchase_month | 0.733 |
+| promise_days | 0.614 |
+| customer_state_SP | 0.218 |
+| total_freight | 0.217 |
+| same_state | 0.117 |
+| customer_state_MG | 0.110 |
+| n_items | 0.088 |
+| seller_state_SP | 0.082 |
+| total_price | 0.060 |
+| customer_state_PR | 0.057 |
+
+**Interpretation:** Seasonality (`purchase_month`) is the strongest single predictor — a new finding not surfaced in earlier phases, likely reflecting order-volume congestion during peak periods. The next four features (`promise_days`, `customer_state_SP`, `total_freight`, `same_state`) all reinforce the geographic/last-mile logistics story already established via process mining, statistical testing, and the Pareto analysis — the model independently rediscovered that cross-state and SP-related shipments carry elevated risk, without being told that directly.
